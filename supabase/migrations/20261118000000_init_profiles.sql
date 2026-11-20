@@ -6,18 +6,26 @@
 
 -- ---------- Types ----------
 
-create type public.user_role as enum (
-  'client',
-  'professionnel',
-  'administrateur',
-  'moderateur'
-);
+do $$
+begin
+  create type public.user_role as enum (
+    'client',
+    'professionnel',
+    'administrateur',
+    'moderateur'
+  );
+exception when duplicate_object then null;
+end $$;
 
-create type public.account_status as enum ('actif', 'suspendu');
+do $$
+begin
+  create type public.account_status as enum ('actif', 'suspendu');
+exception when duplicate_object then null;
+end $$;
 
 -- ---------- Table profiles ----------
 
-create table public.profiles (
+create table if not exists public.profiles (
   id uuid primary key references auth.users (id) on delete cascade,
   role public.user_role not null default 'client',
   phone text,
@@ -102,7 +110,7 @@ begin
 end;
 $$;
 
-create trigger on_auth_user_created
+create or replace trigger on_auth_user_created
   after insert on auth.users
   for each row execute function public.handle_new_user();
 
@@ -126,7 +134,7 @@ begin
 end;
 $$;
 
-create trigger on_auth_user_phone_confirmed
+create or replace trigger on_auth_user_phone_confirmed
   after update of phone_confirmed_at on auth.users
   for each row execute function public.sync_phone_verified();
 
@@ -150,30 +158,34 @@ begin
 end;
 $$;
 
-create trigger protect_profile_fields_trg
+create or replace trigger protect_profile_fields_trg
   before update on public.profiles
   for each row execute function public.protect_profile_fields();
 
 -- ---------- Politiques RLS ----------
 
 -- Lecture : son propre profil.
+drop policy if exists profiles_select_own on public.profiles;
 create policy profiles_select_own on public.profiles
   for select to authenticated
   using (id = auth.uid());
 
 -- Lecture : tous les profils pour admin et modérateur.
+drop policy if exists profiles_select_staff on public.profiles;
 create policy profiles_select_staff on public.profiles
   for select to authenticated
   using (public.is_staff());
 
 -- Modification : son propre profil (les champs sensibles restent
 -- protégés par le trigger protect_profile_fields).
+drop policy if exists profiles_update_own on public.profiles;
 create policy profiles_update_own on public.profiles
   for update to authenticated
   using (id = auth.uid())
   with check (id = auth.uid());
 
 -- Modification complète (role, status…) : administrateur uniquement.
+drop policy if exists profiles_update_admin on public.profiles;
 create policy profiles_update_admin on public.profiles
   for update to authenticated
   using (public.is_admin())
