@@ -1,1 +1,43 @@
 @import "tailwindcss";
+
+/* ---------- Collage photo du hero ----------
+   Animation d'entrée en CSS pur (transform + opacity, 0,8 s).
+   Les photos partent de hors-champ (±110vw) et se posent en collage.
+   prefers-reduced-motion : affichage direct, sans mouvement. */
+
+@keyframes hero-photo-in-left {
+  from {
+    transform: translateX(-110vw);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes hero-photo-in-right {
+  from {
+    transform: translateX(110vw);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+.hero-photo-anim-left {
+  animation: hero-photo-in-left 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+.hero-photo-anim-right {
+  animation: hero-photo-in-right 0.8s cubic-bezier(0.22, 0.61, 0.36, 1) both;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-photo-anim-left,
+  .hero-photo-anim-right {
+    animation: none;
+  }
+}

@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from 'react'
 import { Link, useNavigate, useSearchParams } from 'react-router-dom'
 import { supabase } from '../lib/supabase'
-import { supabaseConfigured } from '../lib/env'
+import { PHONE_VERIFICATION_REQUIRED, supabaseConfigured } from '../lib/env'
 import { normalizeTogoPhone } from '../lib/phone'
 import { pathForRole } from '../lib/constants'
 import type { SignupRole } from '../lib/types'
@@ -237,8 +237,9 @@ export default function Inscription() {
     }
 
     // Si Supabase renvoie une session directement (confirmation téléphone
-    // désactivée côté projet), on finalise sans code SMS.
-    if (signUpData.session) {
+    // désactivée côté projet), ou si la vérification SMS n'est pas requise,
+    // on finalise sans code SMS.
+    if (signUpData.session || !PHONE_VERIFICATION_REQUIRED) {
       await finalizeProfile()
       setBusy(false)
       navigate(pathForRole(data.role), { replace: true })

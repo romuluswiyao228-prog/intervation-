@@ -1,4 +1,9 @@
-import type { ButtonHTMLAttributes, InputHTMLAttributes, ReactNode } from 'react'
+import type {
+  ButtonHTMLAttributes,
+  HTMLAttributes,
+  InputHTMLAttributes,
+  ReactNode,
+} from 'react'
 
 // Bouton réutilisable, stylé mobile-first.
 export function Button({
@@ -40,6 +45,41 @@ export function Field({
       />
       {hint && <span className="mt-1 block text-xs text-gray-500">{hint}</span>}
     </label>
+  )
+}
+
+// Carte blanche arrondie avec ombre légère (style marketplace).
+export function Card({
+  className = '',
+  ...props
+}: HTMLAttributes<HTMLDivElement>) {
+  return (
+    <div
+      className={`rounded-xl border border-gray-200 bg-white shadow-sm ${className}`}
+      {...props}
+    />
+  )
+}
+
+// Titre de section centré, avec sous-titre optionnel.
+export function SectionTitle({
+  title,
+  subtitle,
+  className = '',
+}: {
+  title: string
+  subtitle?: string
+  className?: string
+}) {
+  return (
+    <div className={`text-center ${className}`}>
+      <h2 className="text-2xl font-bold tracking-tight text-gray-900 sm:text-3xl">
+        {title}
+      </h2>
+      {subtitle && (
+        <p className="mx-auto mt-2 max-w-xl text-gray-600">{subtitle}</p>
+      )}
+    </div>
   )
 }
 
