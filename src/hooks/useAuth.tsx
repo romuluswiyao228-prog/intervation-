@@ -24,7 +24,9 @@ const AuthContext = createContext<AuthContextValue | null>(null)
 async function fetchProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
     .from('profiles')
-    .select('*')
+    .select(
+      'id, role, phone, phone_verified, display_name, city, neighborhood, status, accepted_terms_at, created_at',
+    )
     .eq('id', userId)
     .single()
   if (error) {
